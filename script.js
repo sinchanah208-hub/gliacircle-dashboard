@@ -1,38 +1,64 @@
-body {
-  font-family: Arial;
-  background: #f4f6f9;
-  padding: 30px;
-}
+const sheetURL = "YOUR_CSV_LINK_HERE";
 
-h1 {
-  margin-bottom: 20px;
-}
+fetch(sheetURL)
+  .then(response => response.text())
+  .then(data => {
 
-select {
-  padding: 8px;
-  margin-bottom: 20px;
-}
+    const rows = data.split("\n").map(row => row.split(","));
 
-.cards {
-  display: flex;
-  gap: 20px;
-}
+    const headerRow = rows[0];
+    const monthSelect = document.getElementById("monthSelect");
 
-.card {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  width: 220px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-}
+    // Populate dropdown with months (starting from column 1)
+    for (let i = 1; i < headerRow.length; i++) {
+      if (headerRow[i]) {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = headerRow[i];
+        monthSelect.appendChild(option);
+      }
+    }
 
-h3 {
-  font-size: 14px;
-  color: #666;
-}
+    function updateDashboard(monthIndex) {
+      let total = 0;
+      let verified = 0;
+      let notStarted = 0;
 
-p {
-  font-size: 26px;
-  font-weight: bold;
-}
+      rows.forEach(row => {
+        const metric = row[0]?.trim();
+        const value = row[monthIndex]?.trim();
 
+        if (metric === "Total Registration") {
+          total = parseInt(value) || 0;
+        }
+
+        if (metric === "KYC Verified") {
+          verified = parseInt(value) || 0;
+        }
+
+        if (metric === "KYC not started") {
+          notStarted = parseInt(value) || 0;
+        }
+      });
+
+      const pendingRate = total > 0
+        ? ((notStarted / total) * 100).toFixed(1)
+        : 0;
+
+      document.getElementById("total").innerText = total;
+      document.getElementById("verified").innerText = verified;
+      document.getElementById("notStarted").innerText = notStarted;
+      document.getElementById("pending").innerText = pendingRate + "%";
+    }
+
+    // Load latest month automatically
+    const latestMonthIndex = headerRow.length - 1;
+    monthSelect.value = latestMonthIndex;
+    updateDashboard(latestMonthIndex);
+
+    // Change when dropdown changes
+    monthSelect.addEventListener("change", function() {
+      updateDashboard(this.value);
+    });
+
+  });
