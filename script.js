@@ -1,4 +1,4 @@
-const sheetURL = "YOUR_CSV_LINK_HERE";
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTRjmNmom9c_TEMwDG7pPXsf_3FCOdVlUNBuXFAFyDAJE9jF0ydj7TVkkpOPDlu1WvnP8mVKuCB3Tzk/pub?gid=642789490&single=true&output=csv";
 
 fetch(sheetURL)
   .then(response => response.text())
